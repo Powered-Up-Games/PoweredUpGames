@@ -55,8 +55,6 @@ with tag('html'):
 				for size in sizes:
 					document.stag('source', srcset=f'images/logo-{size}.webp', media=f'(max-width: {size}px)')
 				document.stag('img', src='images/logo-1024.webp', alt='Powered Up Games Logo')
-			with tag('p'):
-				text('Powered Up Games')
 		with tag('p'):
 			text('Powered Up Games provides professional game development services. We have many years experience in porting, automation, optimization, training, and debugging.')
 		with tag('h2'):
@@ -69,14 +67,17 @@ with open('html/index.html', 'w') as file:
 	file.write(indent(document.getvalue()))
 
 def render_image_sizes(name):
-	for size in sizes:
-		if not os.path.exists(f'html/images/{name}-{size}.webp'):
+	for width in sizes:
+		if not os.path.exists(f'html/images/{name}-{width}.webp'):
 			with image(filename=f'images/{name}.webp') as img:
-				img.resize(size, size)
+				height = img.height * width // img.width
+				img.resize(width, height, 'lanczos')
 				img.background_color = color('white')
 				img.alpha_channel = 'remove'
-				img.save(filename=f'html/images/{name}-{size}.webp')
+				img.save(filename=f'html/images/{name}-{width}.webp')
 
 studios = db.execute('SELECT * FROM studios')
 for name, id, url in studios:
 	render_image_sizes(f'studios/{id}')
+
+render_image_sizes('logo')
